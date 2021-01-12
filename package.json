@@ -4,7 +4,9 @@
   "description": "Mainly used in conjuction with instant-tunnel for resolving names",
   "main": "handler.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "deploy": "npx serverless deploy",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "npx eslint ./src --ext .ts"
   },
   "dependencies": {
     "ioredis": "^4.19.2",
@@ -16,6 +18,9 @@
     "@types/ioredis": "^4.17.8",
     "@types/node": "^10.12.18",
     "@types/redis": "^2.8.27",
+    "@typescript-eslint/eslint-plugin": "^4.13.0",
+    "@typescript-eslint/parser": "^4.13.0",
+    "eslint": "^7.17.0",
     "fork-ts-checker-webpack-plugin": "^3.0.1",
     "serverless-dotenv-plugin": "^3.0.0",
     "serverless-webpack": "^5.2.0",
