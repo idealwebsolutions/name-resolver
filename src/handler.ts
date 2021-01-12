@@ -86,7 +86,8 @@ export const queryAll: APIGatewayProxyHandler = async (event: APIGatewayProxyEve
   return Object.freeze(shouldRedirect ? {
     statusCode: 302,
     headers: {
-      'Location': decodedParams ? `${proxyUrl}?${decodedParams}` : proxyUrl
+      'Location': decodedParams ? `${proxyUrl}?${decodedParams}` : proxyUrl,
+      'Access-Control-Allow-Origin': '*'
     },
     body: null
   } : {
