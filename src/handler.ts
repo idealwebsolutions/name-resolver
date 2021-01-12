@@ -1,8 +1,12 @@
 import 'make-promises-safe';
-import { APIGatewayProxyHandler, APIGatewayProxyEvent } from 'aws-lambda';
+import 'source-map-support/register';
+import { 
+  APIGatewayProxyHandler, 
+  APIGatewayProxyEvent, 
+  APIGatewayProxyResult,
+} from 'aws-lambda';
 import { stringify } from 'querystring';
 import Redis from 'ioredis';
-import 'source-map-support/register';
 // Target namespace (instant-tunnel)
 const NAMESPACE: string = process.env.NAMESPACE || 'instant-tunnel';
 // Throw if no namespace is defined
@@ -15,8 +19,8 @@ const client: Redis.Redis = new Redis(Object.freeze({
   port: parseInt(process.env.REDIS_PORT) || 6379,
   password: process.env.REDIS_PASSWORD || '',
 }) as Redis.RedisOptions);
-// Query for names associated
-export const queryAll: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent, _context) => {
+// queryAll: GET - Query for names associated
+export const queryAll: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   // Ensure query param is found
   if (!event.queryStringParameters || !event.queryStringParameters.query) {
     return Object.freeze({
@@ -30,7 +34,7 @@ export const queryAll: APIGatewayProxyHandler = async (event: APIGatewayProxyEve
   const encodedParams: string | undefined = event.queryStringParameters.params; // not necessary if redirect is not enabled
   const redirect: string | undefined = event.queryStringParameters.redirect;
   // Should request automatically redirect (default: yes)
-  let shouldRedirect: boolean = true;
+  let shouldRedirect = true;
   if (redirect) {
     shouldRedirect = redirect === 'true' || redirect === 'yes';
   }
@@ -38,7 +42,7 @@ export const queryAll: APIGatewayProxyHandler = async (event: APIGatewayProxyEve
   let decodedParams: string | undefined;
   if (encodedParams) {
     const decodedB64: string = Buffer.from(encodedParams, 'base64').toString('utf-8');
-    let paramsObj: object = {}; // Shape is unknown, expected as JSON object
+    let paramsObj: Record<string, unknown> = {}; // Shape is unknown, expected as JSON object
     try {
       paramsObj = JSON.parse(decodedB64);
     } catch (err) {
