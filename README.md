@@ -1,9 +1,10 @@
 # name-resolver
-Function used in conjuction with instant-tunnel for resolving names
+Function used in conjuction with instant-tunnel for resolving names from a single endpoint
 
 # Pre-requistes
-Relies on instant-tunnel configuration, define `NAMESPACE` if customized from default setup. Best results seen
-in combination with `persist reboot` toggle enabled per tunnel.
+Relies on instant-tunnel backend configuration, usually something production level like Postgres. Best results seen in combination with `persist reboot` toggle enabled per tunnel.
+
+Requires the following environment variables set: `DB_HOST`, `DB_USER`, `DB_PASS`
 
 # Install
 Requires node `LTS` and typescript `v3.2+`. Using serverless, deploy using the following command
@@ -11,8 +12,7 @@ Requires node `LTS` and typescript `v3.2+`. Using serverless, deploy using the f
     npx serverless deploy
 
 # Purpose
-Serverless function that does nothing more than resolving a queryable name to an active tunnel address. Tunnels may die for whatever reason and
-often change their proxy url, for this reason this function was made. Tunnel names **never** change.
+Serverless function that does nothing more than resolving a queryable name to an active tunnel proxy address. Tunnels may die for whatever reason and often change their proxy url, for this reason this function was made. Tunnel names **never** change throughout their lifetime.
 
 # API
 ## query=your-tunnel-name (required)
