@@ -8,7 +8,10 @@ import {
 import * as Knex from 'knex';
 import isUrlHttp from 'is-url-http';
 import { stringify } from 'querystring';
-import { QueryResult } from './constants';
+import { 
+  QUERY_TABLE_NAME,
+  QueryResult 
+} from './constants';
 // Throw if none of the env values were found
 const HOST = process.env.DB_HOST || 'localhost';
 if (!HOST) {
@@ -82,7 +85,7 @@ export const queryAll: APIGatewayProxyHandler = async (event: APIGatewayProxyEve
     decodedParams = stringify(paramsObj);
   }
   // Find first result matching query terms
-  const queryResult: QueryResult = await db.first<QueryResult>('proxy').where('name', 'like', `%${query}%`);
+  const queryResult: QueryResult = await db.first<QueryResult>('proxy').where('name', 'like', `%${query}%`).from(QUERY_TABLE_NAME);
   // If no result is found, return 404
   if (!queryResult) {
     return Object.freeze({
@@ -119,6 +122,9 @@ export const queryAll: APIGatewayProxyHandler = async (event: APIGatewayProxyEve
     body: null
   } : {
     statusCode: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    },
     body: JSON.stringify({
       proxyUrl
     }, null, 2)
