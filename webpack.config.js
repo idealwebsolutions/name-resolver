@@ -41,11 +41,6 @@ module.exports = {
     ],
   },
   plugins: [
-    // new ForkTsCheckerWebpackPlugin({
-    //   eslint: true,
-    //   eslintOptions: {
-    //     cache: true
-    //   }
-    // })
+    // TODO: Ignore knex dynamic required dialects that we don't use
   ],
 };

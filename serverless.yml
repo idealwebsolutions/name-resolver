@@ -7,9 +7,13 @@ service:
 custom:
   webpack:
     webpackConfig: ./webpack.config.js
-    includeModules: {
-      forceInclude: ['pg', 'knex']
-    }
+    includeModules:
+      forceExclude:
+        - mssql
+        - mysql
+        - mysql2
+        - pg-native
+        - sqlite3
 
 # Add the serverless-webpack plugin
 plugins:
