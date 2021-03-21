@@ -1,7 +1,7 @@
 {
   "name": "name-resolver",
   "version": "1.0.0",
-  "description": "Mainly used in conjuction with instant-tunnel for resolving names",
+  "description": "Mainly used in conjuction with instant-tunnel for resolving names from a single endpoint",
   "main": "handler.js",
   "scripts": {
     "deploy": "npx serverless deploy",
@@ -9,15 +9,15 @@
     "lint": "npx eslint ./src --ext .ts"
   },
   "dependencies": {
-    "ioredis": "^4.19.2",
+    "is-url-http": "^2.2.3",
+    "knex": "^0.21.14",
     "make-promises-safe": "^5.1.0",
+    "pg": "^8.5.1",
     "source-map-support": "^0.5.10"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.17",
-    "@types/ioredis": "^4.17.8",
     "@types/node": "^10.12.18",
-    "@types/redis": "^2.8.27",
     "@typescript-eslint/eslint-plugin": "^4.13.0",
     "@typescript-eslint/parser": "^4.13.0",
     "eslint": "^7.17.0",
