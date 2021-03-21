@@ -5,25 +5,45 @@ import {
   APIGatewayProxyEvent, 
   APIGatewayProxyResult,
 } from 'aws-lambda';
+import * as Knex from 'knex';
+import isUrlHttp from 'is-url-http';
 import { stringify } from 'querystring';
-import Redis from 'ioredis';
-// Target namespace (instant-tunnel)
-const NAMESPACE: string = process.env.NAMESPACE || 'instant-tunnel';
-// Throw if no namespace is defined
-if (!NAMESPACE) {
-  throw new Error('Redis NAMESPACE required before use');
+import { QueryResult } from './constants';
+// Throw if none of the env values were found
+const HOST = process.env.DB_HOST || 'localhost';
+if (!HOST) {
+  throw new Error('Postgresql DB_HOST required before use');
 }
-// Initialize redis client
-const client: Redis.Redis = new Redis(Object.freeze({
-  host: process.env.REDIS_HOST || '127.0.0.1',
-  port: parseInt(process.env.REDIS_PORT) || 6379,
-  password: process.env.REDIS_PASSWORD || '',
-}) as Redis.RedisOptions);
+const USER = process.env.DB_USER;
+if (!USER) {
+  throw new Error('Postgresql DB_USER required before use');
+}
+const PASS = process.env.DB_PASS;
+if (!PASS) {
+  throw new Error('Postgresql DB_PASS required before use');
+}
+// Initialize knex client
+const db: Knex = Knex(Object.freeze({
+  client: 'pg',
+  connection: {
+    host: HOST,
+    user: USER,
+    password: PASS,
+    database: 'instant_tunnel'
+  },
+  pool: {
+    min: 1,
+    max: 1,
+  }
+}) as Knex.Config);
 // queryAll: GET - Query for names associated
 export const queryAll: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   // Ensure query param is found
   if (!event.queryStringParameters || !event.queryStringParameters.query) {
     return Object.freeze({
+      headers: {
+        'Access-Control-Allow-Origin': '*'
+      },
       statusCode: 400,
       body: JSON.stringify({
         message: 'Invalid parameters provided. Requires query parameter'
@@ -49,6 +69,9 @@ export const queryAll: APIGatewayProxyHandler = async (event: APIGatewayProxyEve
       // Log error and return invalid json response
       console.error(err);
       return Object.freeze({
+        headers: {
+          'Access-Control-Allow-Origin': '*'
+        },
         statusCode: 400,
         body: JSON.stringify({
           message: 'Invalid JSON encountered. params requires base64 encoded JSON object'
@@ -58,27 +81,31 @@ export const queryAll: APIGatewayProxyHandler = async (event: APIGatewayProxyEve
     // Form querystring
     decodedParams = stringify(paramsObj);
   }
-  // Begin scanning according to query (somewhat expensive call)
-  const scanResults: [string, Array<string>] = await client.sscan(`${NAMESPACE}:tunnels`, '0', 'MATCH', `${query}*`);
+  // Find first result matching query terms
+  const queryResult: QueryResult = await db.first<QueryResult>('proxy').where('name', 'like', `%${query}%`);
   // If no result is found, return 404
-  if (!scanResults[1].length) {
+  if (!queryResult) {
     return Object.freeze({
+      headers: {
+        'Access-Control-Allow-Origin': '*'
+      },
       statusCode: 404,
       body: JSON.stringify({
         message: `Query (${query}) was not found`
       })
-    });
+    });    
   }
-  // Get first result
-  const result: string = scanResults[1][0];
-  // Retrieve public proxy url
-  const proxyUrl: string = await client.hget(`${NAMESPACE}:tunnels_${result}`, 'public_url');
-  // If somehow the proxy isn't found directly, return 404
-  if (!proxyUrl) {
+  // Retrieve proxy url
+  const proxyUrl: string = queryResult.proxy; 
+  // If the proxy is incorrectly formed or invalid, return 500
+  if (!isUrlHttp(proxyUrl)) {
     return Object.freeze({
-      statusCode: 404,
+      headers: {
+        'Access-Control-Allow-Origin': '*'
+      },
+      statusCode: 500,
       body: JSON.stringify({
-        message: `Query (${query}) was not found`
+        message: 'Failed to parse proxy url'
       })
     });
   }
