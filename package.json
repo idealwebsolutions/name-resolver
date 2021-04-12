@@ -1,6 +1,6 @@
 {
   "name": "name-resolver",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Mainly used in conjuction with instant-tunnel for resolving names from a single endpoint",
   "main": "handler.js",
   "scripts": {
