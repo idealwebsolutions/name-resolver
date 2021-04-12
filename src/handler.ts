@@ -98,8 +98,20 @@ export const queryAll: APIGatewayProxyHandler = async (event: APIGatewayProxyEve
       })
     });    
   }
-  // Retrieve proxy url
-  const proxyUrl: string = queryResult.proxy; 
+  // Retrieve proxy url, if name is found but proxy is null it's currently inactive
+  // TODO: Render a maintenance page
+  const proxyUrl: string = queryResult.proxy;
+  if (!proxyUrl || !proxyUrl.length) {
+    return Object.freeze({
+      headers: {
+        'Access-Control-Allow-Origin': '*'
+      },
+      statusCode: 503,
+      body: JSON.stringify({
+        message: 'Service is undergoing maintenance'
+      })
+    });
+  }
   // If the proxy is incorrectly formed or invalid, return 500
   if (!isUrlHttp(proxyUrl)) {
     return Object.freeze({
