@@ -2,7 +2,10 @@
 Function used in conjuction with instant-tunnel for resolving names from a single endpoint
 
 # Pre-requistes
-Relies on instant-tunnel backend configuration, usually something production level like Postgres. Best results seen in combination with `persist reboot` toggle enabled per tunnel.
+Relies on instant-tunnel backend configuration, usually something production level like Postgres. Best results seen in combination with `persist reboot` flag enabled per tunnel.
+
+# Gotchas
+Currently this is a work in progress, only GET requests are supported at the moment. For now to do anything useful, you should add the `redirect=false` flag to return the current working proxy for your query and use that.  
 
 Requires the following environment variables set: `DB_HOST`, `DB_USER`, `DB_PASS`
 
